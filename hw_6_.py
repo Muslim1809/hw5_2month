@@ -1,35 +1,24 @@
-# Функция пузырьковой сортировки
-def bubble_sort(arr):
-    n = len(arr)
-    for i in range(n):
-        for j in range(0, n - i - 1):
-            if arr[j] > arr[j + 1]:
-                arr[j], arr[j + 1] = arr[j + 1], arr[j]  # обмен
-    return arr
-
-# Функция двоичного поиска
-def binary_search(arr, target):
-    low = 0
-    high = len(arr) - 1
-    while low <= high:
-        mid = (low + high) // 2
-        if arr[mid] == target:
-            print(f"Элемент {target} найден на индексе {mid}")
-            return mid
-        elif arr[mid] < target:
-            low = mid + 1
+def binary_search(a,value):
+    n = len(a)
+    first = 0
+    last = n - 1
+    middle = n // 2
+    resultOK = False
+    while a[middle] != value and first <= last:
+        if value > a[middle]:
+            first = middle + 1
         else:
-            high = mid - 1
-    print(f"Элемент {target} не найден")
-    return -1
+            last = middle - 1
+        middle = (first + last) // 2
+    if value == a[middle]:
+        resultOK = True
 
-# Пример списка для сортировки и поиска
-arr = [64, 34, 25, 12, 22, 11, 90]
-
-# Сортировка списка
-sorted_arr = bubble_sort(arr)
-print("Отсортированный список:", sorted_arr)
-
-# Поиск элемента
-target = 22
-binary_search(sorted_arr, target)
+    if resultOK == True:
+        #ID Это индекс элемента в списке
+        print(f"ID of {value} == {middle}")
+    else:
+        print('No value')
+lst = [6, 17, 21, 27, 32, 35, 35, 36, 37, 48]
+print(lst)
+binary_search(lst,35) #значение найдено
+binary_search(lst,11) #значение не найдено, его нет в списке
