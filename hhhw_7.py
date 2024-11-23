@@ -1,57 +1,66 @@
 import sqlite3
 
-connection = sqlite3.connect('''hw.db''')
 
-def create_table(connection,sql): #создание таблицы
+def create_connection(db_name):
+    connection = None
+    try:
+        connection = sqlite3.connect(db_name)  # Corrected connection method
+    except sqlite3.Error as e:
+        print(f'{e} in CREATE_CONNECTION')
+    return connection
+
+
+def create_table(connection, sql):
     try:
         cursor = connection.cursor()
         cursor.execute(sql)
     except sqlite3.Error as e:
-        print(e)
+        print(f'{e} in CREATE_TABLE function')
 
-def insert_products(connection,product):#добавление продуктов
+
+def insert_products(connection, product):
     try:
-        sql = '''INSERT INTO products
-        (products_title,
-        price,
-        quantity)
-        VALUES(?,?,?)'''
-        cursor = connection.cursor()
-        cursor.execute(sql,product)
-        connection.commit()
-
-    except sqlite3.Error as e:
-        print(e)
-
-def update_products_quantity(connection,product):# изменение количества продукта по айди
-    try:
-        sql = '''UPDATE products SET quantity = ? WHERE id = ?'''
+        sql = '''INSERT INTO products 
+                 (product_title, price, quantity)
+                 VALUES (?, ?, ?)'''  # Corrected typo in column name
         cursor = connection.cursor()
         cursor.execute(sql, product)
         connection.commit()
     except sqlite3.Error as e:
-        print(e)
+        print(f'{e} in INSERT_PRODUCTS function')
 
 
-def update_products_price(connection,product):# изменение цены продукта по айди
+def update_quantity(connection, product):
     try:
-        sql = '''UPDATE products SET price = ? WHERE id = ?'''
+        sql = '''UPDATE products SET quantity=? WHERE id=?'''  # Corrected SQL query
         cursor = connection.cursor()
         cursor.execute(sql, product)
         connection.commit()
     except sqlite3.Error as e:
-        print(e)
+        print(f'{e} in UPDATE_QUANTITY function')
 
-def delete_products(connection, id): #удаление продукта по айди
+
+def update_price(connection, product):
     try:
-        sql = '''DELETE FROM products WHERE id = ?'''
+        sql = '''UPDATE products SET price=? WHERE id=?'''
+        cursor = connection.cursor()
+        cursor.execute(sql, product)
+        connection.commit()
+    except sqlite3.Error as e:
+        print(f'{e} in UPDATE_PRICE function')
+
+
+def delete_by_id(connection, id):
+    try:
+        sql = '''DELETE FROM products WHERE id=?'''
         cursor = connection.cursor()
         cursor.execute(sql, (id,))
         connection.commit()
     except sqlite3.Error as e:
-        print(e)
+        print(f'{e} in DELETE_BY_ID function')
 
-def select_products(connection):# функция вывода в консоль таблицы
+
+def select_all(connection):
     try:
         sql = '''SELECT * FROM products'''
         cursor = connection.cursor()
@@ -60,79 +69,69 @@ def select_products(connection):# функция вывода в консоль 
         for row in rows:
             print(row)
     except sqlite3.Error as e:
-        print(e)
+        print(f'{e} in SELECT_ALL function')
 
-def select_products_limit(connection,limit): # по лимиту цены
-    try:
-        sql = '''SELECT * FROM products WHERE price <= ?'''
-        cursor = connection.cursor()
-        cursor.execute(sql,(limit,))
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row)
-    except sqlite3.Error as e:
-        print(e)
-def select_products_limit2(connection,limit): #по лимиту количества
-    try:
-        sql = '''SELECT * FROM products WHERE quantity >= ?'''
-        cursor = connection.cursor()
-        cursor.execute(sql,(limit,))
-        rows = cursor.fetchall()
-        for row in rows:
-            print(row)
-    except sqlite3.Error as e:
-        print(e)
 
-def select_products_limit3(connection):# По названию
+def select_by_price_and_quantity(connection, price_limit, quantity_limit):
     try:
-        sql = '''SELECT * FROM products WHERE products_title LIKE 'To%' '''
+        sql = '''SELECT * FROM products
+                 WHERE price <= ? AND quantity >= ?'''
         cursor = connection.cursor()
-        cursor.execute(sql)
+        cursor.execute(sql, (price_limit, quantity_limit))
         rows = cursor.fetchall()
         for row in rows:
             print(row)
     except sqlite3.Error as e:
-        print(e)
+        print(f'{e} in SELECT_BY_PRICE_AND_QUANTITY function')
+
+
+def select_by_name(connection, name):
+    try:
+        sql = '''SELECT * FROM products
+                 WHERE product_title LIKE ?'''
+        cursor = connection.cursor()
+        cursor.execute(sql, (f"%{name}%",))  # Added parameterized query
+        rows = cursor.fetchall()
+        for row in rows:
+            print(row)
+    except sqlite3.Error as e:
+        print(f'{e} in SELECT_BY_NAME function')
 
 
 sql_to_create_products_table = '''
 CREATE TABLE products (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
-    products_title VARCHAR(200) NOT NULL,
-    price FLOAT(10,2) NOT NULL DEFAULT 0.0,
+    product_title VARCHAR(200) NOT NULL,
+    price REAL NOT NULL DEFAULT 0.0,
     quantity INTEGER NOT NULL DEFAULT 0
 )
 '''
 
-connect_to_db = connection
-if connect_to_db is not None:
-    print('Connection succesfully!')
-    # create_table(connect_to_db, sql_to_create_products_table)
-    #вся цена тут за кило продукта
-    # insert_products(connect_to_db, ('Tomatos_from_Kazakhstan', 90.70, 120))
-    # insert_products(connect_to_db, ('Apples', 70, 80))
-    # insert_products(connect_to_db, ('Aples"Golden"', 120.90, 20))
-    # insert_products(connect_to_db, ('Watermelon_Osh', 20, 10))
-    # insert_products(connect_to_db, ('Watermelon_Bishkek', 27.70, 50))
-    # insert_products(connect_to_db, ('Potatoes', 40, 100))
-    # insert_products(connect_to_db, ('Onion', 60.60, 100)
-    # insert_products(connect_to_db, ('Onian_violet', 90, 72))
-    # insert_products(connect_to_db, ('Banana', 160.50, 140))
-    # insert_products(connect_to_db, ('Dragonfruit', 200, 50))
-    # insert_products(connect_to_db, ('Melon', 22, 50))
-    # insert_products(connect_to_db, ('Appricots', 100.50, 100))
-    # insert_products(connect_to_db, ('Grape', 190.50, 200))
-    # insert_products(connect_to_db, ('Grape_Kyrgyzstan', 160.50, 210))
 
-    """проверка функций"""
-    # update_products_quantity(connect_to_db,(300,4))
-    # update_products_price(connect_to_db, (100, 7))
-    # delete_products(connect_to_db,5)
-    # select_products(connect_to_db)
-    # select_products_limit(connect_to_db,100)
-    # select_products_limit2(connect_to_db,5 )
-    select_products_limit3(connect_to_db)
+my_connection = create_connection('hw.db')
 
+if my_connection:
+    print('Connected successfully!')
 
-    print("all right")
-    connect_to_db.close()
+    # create_table(my_connection, sql_to_create_products_table)
+    # insert_products(my_connection, ('Classic Chocolate', 120.50, 7))
+    # insert_products(my_connection, ('Milk Chocolate', 129.99, 3))
+    # insert_products(my_connection, ('White Chocolate', 99.99, 10))
+    # insert_products(my_connection, ('Black chocolate', 150.40, 8))
+    # insert_products(my_connection, ('Salted Chocolate', 145.50, 5))
+    # insert_products(my_connection, ('Classic Marmalade', 89.90, 12))
+    # insert_products(my_connection, ('Berry Marmalade', 100.00, 10))
+    # insert_products(my_connection, ('Fruit Marmalade', 100.00, 7))
+    # insert_products(my_connection, ('Classic Kurut', 30.30, 15))
+    # insert_products(my_connection, ('Smoked Kurut', 35.50, 4))
+    # insert_products(my_connection, ('Mint Gum', 45.80, 9))
+    # insert_products(my_connection, ('Fruit Gum', 43.30, 3))
+    # insert_products(my_connection, ('Cheese Chips', 150.70, 4))
+    # insert_products(my_connection, ('Spicy Chips', 145.99, 7))
+    # insert_products(my_connection, ('Salted Chips', 120.00, 2))
+    #
+    # update_price(my_connection, ( 120.50, 7))
+    # update_quantity(my_connection, ( 10, 11))
+    # delete_by_id(my_connection, 3)
+    select_all(my_connection)
+    select_by_price_and_quantity(my_connection, 100, 5)
